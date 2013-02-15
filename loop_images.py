@@ -12,24 +12,21 @@ class SampleApp(tk.Tk):
 
         self.index = 0
 
-        first_file = self.files[0]
-
-        print first_file
-
-        self.img = Image.open(first_file)
-        self.tkimage = ImageTk.PhotoImage(self.img)
+        self.tkimage = self.load_image()
         self.label = tk.Label(self, image=self.tkimage)
         self.label.pack()
         self.after(500, self.update_image)
 
+    def load_image(self):
+        the_image_file = self.files[self.index]
+        print the_image_file
+        return ImageTk.PhotoImage(Image.open(the_image_file))
+
     def update_image(self):
         self.index += 1
         if self.index < len(self.files):
-            the_file = self.files[self.index]
-            print the_file
 
-            self.img = Image.open(self.files[self.index])
-            self.tkimage = ImageTk.PhotoImage(self.img)
+            self.tkimage = self.load_image()
             self.label.configure(image = self.tkimage)
 
             # call this function again in one second
