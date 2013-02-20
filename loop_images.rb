@@ -7,7 +7,7 @@ require 'date'
 class SampleApp < TkRoot
   include Tk
 
-  PATH_GLOB = "/home/pi/*.jpg"
+  PATH_GLOB = "/home/pi/Pictures/webcam/*.jpg"
 
   attr_accessor :files, :index, :continue_animation, :label, :filter
 
@@ -71,8 +71,6 @@ class SampleApp < TkRoot
     animate_from.add :command, :label => '6 days ago', :command => proc { start_animation_from 6 }
     animate_from.add :command, :label => '7 days ago', :command => proc { start_animation_from 7 }
     
-    # animate.add :command, :label => 'Today', :command => proc { start_todays_animation }
-
     animate.add :command, :label => 'Clear Filter', :command => proc { clear_filter }
   end
   
@@ -109,12 +107,6 @@ class SampleApp < TkRoot
     self.filter = (Date.today - days_back).strftime("/%m-%d-%y")
     start_animation
   end
-
-  # def start_todays_animation
-  #   self.index = -1
-  #   self.filter = Date.today.strftime("/%m-%d-%y")
-  #   start_animation
-  # end
 
   def restart_animation
     self.index = -1
