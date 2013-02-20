@@ -58,7 +58,21 @@ class SampleApp < TkRoot
     animate.add :command, :label => 'Start', :command => proc { start_animation }
     animate.add :command, :label => 'Restart', :command => proc { restart_animation }
     animate.add :command, :label => 'Stop', :command => proc { stop_animation }
-    animate.add :command, :label => 'Today', :command => proc { start_todays_animation }
+    
+    animate_from = TkMenu.new(animate, 'tearoff' => 0)
+    animate.add :cascade, :menu => animate_from, :label => 'Animate From'
+
+    animate_from.add :command, :label => 'Today', :command => proc { start_animation_from 0 }
+    animate_from.add :command, :label => 'Yesterday', :command => proc { start_animation_from 1 }
+    animate_from.add :command, :label => '2 days ago', :command => proc { start_animation_from 2 }
+    animate_from.add :command, :label => '3 days ago', :command => proc { start_animation_from 3 }
+    animate_from.add :command, :label => '4 days ago', :command => proc { start_animation_from 4 }
+    animate_from.add :command, :label => '5 days ago', :command => proc { start_animation_from 5 }
+    animate_from.add :command, :label => '6 days ago', :command => proc { start_animation_from 6 }
+    animate_from.add :command, :label => '7 days ago', :command => proc { start_animation_from 7 }
+    
+    # animate.add :command, :label => 'Today', :command => proc { start_todays_animation }
+
     animate.add :command, :label => 'Clear Filter', :command => proc { clear_filter }
   end
   
@@ -90,11 +104,17 @@ class SampleApp < TkRoot
     self.filter = nil
   end
 
-  def start_todays_animation
+  def start_animation_from(days_back)
     self.index = -1
-    self.filter = Date.today.strftime("/%m-%d-%y")
+    self.filter = (Date.today - days_back).strftime("/%m-%d-%y")
     start_animation
   end
+
+  # def start_todays_animation
+  #   self.index = -1
+  #   self.filter = Date.today.strftime("/%m-%d-%y")
+  #   start_animation
+  # end
 
   def restart_animation
     self.index = -1
