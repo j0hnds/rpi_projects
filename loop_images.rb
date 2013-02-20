@@ -46,32 +46,36 @@ class SampleApp < TkRoot
 
   def file_menu(menubar)
     file = TkMenu.new(menubar, 'tearoff' => 0)
-    menubar.add :cascade, :menu => file, :label => 'File'
+    menubar.add :cascade, :menu => file, :label => 'File', :underline => 0
 
-    file.add :command, :label => 'Quit', :command => proc { quit }
+    file.add :command, :label => 'Quit', :underline => 0, :accelerator => 'Ctrl+Q', :command => proc { quit }
+
+    bind "Control-q", proc { quit }
   end
 
   def animate_menu(menubar)
     animate = TkMenu.new(menubar, 'tearoff' => 0)
-    menubar.add :cascade, :menu => animate, :label => 'Animate'
+    menubar.add :cascade, :menu => animate, :label => 'Animate', :underline => 0
 
-    animate.add :command, :label => 'Start', :command => proc { start_animation }
-    animate.add :command, :label => 'Restart', :command => proc { restart_animation }
-    animate.add :command, :label => 'Stop', :command => proc { stop_animation }
+    animate.add :command, :label => 'Start', :underline => 0, :command => proc { start_animation }
+    animate.add :command, :label => 'Restart', :underline => 0, :command => proc { restart_animation }
+    animate.add :command, :label => 'Stop', :underline => 1, :command => proc { stop_animation }
     
     animate_from = TkMenu.new(animate, 'tearoff' => 0)
-    animate.add :cascade, :menu => animate_from, :label => 'Animate From'
+    animate.add :cascade, :menu => animate_from, :label => 'Animate From', :underline => 0
 
-    animate_from.add :command, :label => 'Today', :command => proc { start_animation_from 0 }
-    animate_from.add :command, :label => 'Yesterday', :command => proc { start_animation_from 1 }
-    animate_from.add :command, :label => '2 days ago', :command => proc { start_animation_from 2 }
-    animate_from.add :command, :label => '3 days ago', :command => proc { start_animation_from 3 }
-    animate_from.add :command, :label => '4 days ago', :command => proc { start_animation_from 4 }
-    animate_from.add :command, :label => '5 days ago', :command => proc { start_animation_from 5 }
-    animate_from.add :command, :label => '6 days ago', :command => proc { start_animation_from 6 }
-    animate_from.add :command, :label => '7 days ago', :command => proc { start_animation_from 7 }
+    animate_from.add :command, :label => 'Today', :underline => 0, :accelerator => 'Ctrl-T', :command => proc { start_animation_from 0 }
+    bind "Control-t", proc { start_animation_from 0 }
+    animate_from.add :command, :label => 'Yesterday', :underline => 0, :accelerator => 'Ctrl-Y', :command => proc { start_animation_from 1 }
+    bind "Control-y", proc { start_animation_from 1 }
+    animate_from.add :command, :label => '2 days ago', :underline => 0, :command => proc { start_animation_from 2 }
+    animate_from.add :command, :label => '3 days ago', :underline => 0, :command => proc { start_animation_from 3 }
+    animate_from.add :command, :label => '4 days ago', :underline => 0, :command => proc { start_animation_from 4 }
+    animate_from.add :command, :label => '5 days ago', :underline => 0, :command => proc { start_animation_from 5 }
+    animate_from.add :command, :label => '6 days ago', :underline => 0, :command => proc { start_animation_from 6 }
+    animate_from.add :command, :label => '7 days ago', :underline => 0, :command => proc { start_animation_from 7 }
     
-    animate.add :command, :label => 'Clear Filter', :command => proc { clear_filter }
+    animate.add :command, :label => 'Clear Filter', :underline => 0, :command => proc { clear_filter }
   end
   
   def matches_filter(path)
@@ -135,9 +139,7 @@ class SampleApp < TkRoot
 
   def update_image
     image_file = next_image_file
-    puts "# Displaying image: #{image_file}"
     if !image_file.nil? && continue_animation
-      puts "Drawing the image"
       label['image'] = load_image
 
       Tk.after 500, proc { update_image }
@@ -148,5 +150,4 @@ end
 
 root = SampleApp.new { title "Webcam Looper" }
 
-# Tk.mainloop
 root.mainloop
