@@ -64,7 +64,7 @@ class SampleApp < TkRoot
   
   def matches_filter(path)
     matches = true
-    matches = path.index(filter) >= 0 unless filter.nil?
+    matches = !path.index(filter).nil? unless filter.nil?
     matches
   end
 
@@ -82,25 +82,17 @@ class SampleApp < TkRoot
     current_path
   end
 
-  def update_image
-    image_file = next_image_file
-    puts "# Displaying image: #{image_file}"
-    if !image_file.nil? && continue_animation
-      puts "Drawing the image"
-      label['image'] = load_image
-
-      Tk.after 500, proc { update_image }
-      # after 500, proc { update_image }
-    end
-  end
+  #
+  # Event Handlers
+  #
 
   def clear_filter
-    filter = nil
+    self.filter = nil
   end
 
   def start_todays_animation
     self.index = -1
-    filter = Date.today.strftime("/%m-%d-%y")
+    self.filter = Date.today.strftime("/%m-%d-%y")
     start_animation
   end
 
@@ -122,10 +114,24 @@ class SampleApp < TkRoot
     destroy # Destroy the root window.
   end
 
+  private
+
   def load_image
     the_image_file = files[index]
     TkPhotoImage.new('file' => the_image_file )
   end
+
+  def update_image
+    image_file = next_image_file
+    puts "# Displaying image: #{image_file}"
+    if !image_file.nil? && continue_animation
+      puts "Drawing the image"
+      label['image'] = load_image
+
+      Tk.after 500, proc { update_image }
+    end
+  end
+
 end
 
 root = SampleApp.new { title "Webcam Looper" }
