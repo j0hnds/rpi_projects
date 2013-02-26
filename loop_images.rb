@@ -140,7 +140,9 @@ class SampleApp < TkRoot
   def update_image
     image_file = next_image_file
     if !image_file.nil? && continue_animation
-      label['image'] = load_image
+      new_image = load_image
+      label['image'].copy new_image, :zoom => [ 2, 2 ]
+      new_image = nil
 
       Tk.after 500, proc { update_image }
     end
