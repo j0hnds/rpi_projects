@@ -1,0 +1,12 @@
+Source: loop-images
+Maintainer: Dave Sieh <davesieh@gmail.com>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.4
+Build-Depends: debhelper (>= 8)
+
+Package: loop-images
+Architecture: all
+Depends: ruby, ${misc:Depends}, ${ruby:Depends}
+Description: GUI application to loop through a set of still images
+  It will loop through lots of images.
