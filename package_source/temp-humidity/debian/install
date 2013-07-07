@@ -1,0 +1,5 @@
+chart_temp_humidity usr/bin
+dump_readings usr/bin
+temp_chart usr/bin
+temp_humidity_control usr/bin
+temp_humidity usr/bin

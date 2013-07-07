@@ -1,51 +1,101 @@
 # -*- ruby -*-
+require 'yaml'
 
-# Define some constants for the version of the packages we're going
-# to build
-LOOP_IMAGES_VERSION = '1.0.0'
-TEMP_HUMIDITY_VERSION = '1.0.0'
+PACKAGE_CONSTRUCTION_DIR = 'package-construction'
 
-UPSTREAM_SOURCES_DIR = 'upstream-sources'
+directory PACKAGE_CONSTRUCTION_DIR
 
-LOOP_IMAGES_UPSTREAM_TARBALL = File.join(UPSTREAM_SOURCES_DIR, "loop-images_#{LOOP_IMAGES_VERSION}.orig.tar.gz")
-
-LOOP_IMAGES_SOURCE_DIR = File.join(UPSTREAM_SOURCES_DIR, "loop-images-#{LOOP_IMAGES_VERSION}")
-
-directory UPSTREAM_SOURCES_DIR
-
-directory LOOP_IMAGES_SOURCE_DIR
-
-# directory File.join(LOOP_IMAGES_SOURCE_DIR, 'debian') do
-#   cp_r 'package_source/loop-images/debian', LOOP_IMAGES_SOURCE_DIR
-# end
-
-file LOOP_IMAGES_UPSTREAM_TARBALL => [ UPSTREAM_SOURCES_DIR ] do
-  system "tar zcf #{LOOP_IMAGES_UPSTREAM_TARBALL} --directory #{UPSTREAM_SOURCES_DIR} loop-images-#{LOOP_IMAGES_VERSION}"
-
-  # Now add the debian files to the 'extracted' source directory
-  mkdir File.join(LOOP_IMAGES_SOURCE_DIR, 'debian')
-  cp_r 'package_source/loop-images/debian', LOOP_IMAGES_SOURCE_DIR
+desc "Remove the package construction directory"
+task :clean_packages do
+  rm_rf PACKAGE_CONSTRUCTION_DIR
 end
 
-[ 'loop_images.rb' ].each do | source_file |
-  file File.join(LOOP_IMAGES_SOURCE_DIR, source_file) => LOOP_IMAGES_SOURCE_DIR do
-    cp source_file, LOOP_IMAGES_SOURCE_DIR
+desc "Build all the configured debian packages for this project"
+task :build_deb_packages => [ :load_package_configurations, :deb_packages ]
+
+task :deb_packages
+
+task :load_package_configurations do
+  Dir.glob('config/*.yml').each do | config_path |
+    File.open(config_path) do | f |
+      config = YAML.load(f)
+      build_package_tasks config
+    end
+  end
+end
+
+#
+# Given the configuration entry for a package, create all the necessary
+# rake tasks, files and directories to build the package. 
+#
+def build_package_tasks(config)
+  # The name of the task to build the package
+  package_task_name = "build_#{config[:package_name]}"
+
+  # Add task name to the list of dependencies for the :deb_packages task
+  task :deb_packages => package_task_name
+
+  # The path to the package source directory
+  pkg_src_dir = File.join(PACKAGE_CONSTRUCTION_DIR, source_dir_name(config))
+
+  # Directory task to ensure the existence of the directory
+  directory pkg_src_dir
+
+  # Create the tarball task
+  orig_source_tarball_path = File.join(PACKAGE_CONSTRUCTION_DIR, "#{orig_tar_ball_name(config)}.orig.tar.gz")
+
+  # The File task to construct the original source tarball.
+  file orig_source_tarball_path => PACKAGE_CONSTRUCTION_DIR do
+    system "tar zcf #{orig_source_tarball_path} --directory #{PACKAGE_CONSTRUCTION_DIR} #{source_dir_name(config)}"
   end
 
-  file LOOP_IMAGES_UPSTREAM_TARBALL => File.join(LOOP_IMAGES_SOURCE_DIR, source_file)
-end
+  # The path to the debian directory within the extracted source directory
+  package_debian_path = File.join(pkg_src_dir, 'debian')
 
-[ 'loop-images' ].each do | link_file |
-  file File.join(LOOP_IMAGES_SOURCE_DIR, link_file) => LOOP_IMAGES_SOURCE_DIR do
-    system "cd #{LOOP_IMAGES_SOURCE_DIR}; ln -s #{link_file.gsub('-', '_')}.rb #{link_file}"
+  # Directory task to the package debian path to ensure existence.
+  directory package_debian_path
+
+  # The task that actually constructs the debian package
+  task package_task_name => orig_source_tarball_path do
+    # Build the spanky little thing.
+    debuild_flag = ENV['debuild'] || 'true'
+    if debuild_flag == 'true'
+      system "cd #{pkg_src_dir}; debuild -us -uc"
+    else
+      puts "Skipping build; debug flag was set"
+    end
   end
 
-  file LOOP_IMAGES_UPSTREAM_TARBALL => File.join(LOOP_IMAGES_SOURCE_DIR, link_file)
+  # Ensure we have set up the tasks for all the files to be included
+  # in the package.
+  config[:exes].each do | exe_name |
+    exe_path = File.join(pkg_src_dir, exe_name.split('.').first)
+    file exe_path => pkg_src_dir do
+      cp exe_name, exe_path
+    end
+
+    # Add the file path as a dependency of the source tarball
+    task orig_source_tarball_path => exe_path
+  end
+
+  # Create the task to populate the debian directory
+  debian_task = "populate_#{config[:package_name]}_debian_files"
+  task debian_task => package_debian_path do
+    cp_r "package_source/#{config[:package_name]}/debian", pkg_src_dir
+  end
+
+  # Finally add the debian task as a dependency for the package task.
+  task package_task_name => debian_task
 end
 
-task :build_loop_images => [ LOOP_IMAGES_UPSTREAM_TARBALL ] do
-  # Build the spanky little thing.
-  system "cd #{LOOP_IMAGES_SOURCE_DIR}; debuild -us -uc"
+def versioned_package_name(config, version_delim='-')
+  "#{config[:package_name]}#{version_delim}#{config[:version]}"
 end
 
-task :build_upstream_source_tarballs => [ :build_loop_images ]
+def orig_tar_ball_name(config)
+  versioned_package_name(config, '_')
+end
+
+def source_dir_name(config)
+  versioned_package_name(config)
+end

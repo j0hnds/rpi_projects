@@ -1,0 +1,5 @@
+---
+:version: 1.0.0
+:package_name: loop-images
+:exes:
+- loop_images.rb

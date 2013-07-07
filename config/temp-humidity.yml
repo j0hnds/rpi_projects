@@ -1,0 +1,9 @@
+---
+:version: 1.0.0
+:package_name: temp-humidity
+:exes:
+- chart_temp_humidity.sh
+- dump_readings.rb
+- temp_chart.rb
+- temp_humidity_control.rb
+- temp_humidity.rb

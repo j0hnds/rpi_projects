@@ -1,12 +1,12 @@
-Source: loop-images
+Source: temp-humidity
 Maintainer: Dave Sieh <davesieh@gmail.com>
 Section: misc
 Priority: optional
 Standards-Version: 3.9.4
 Build-Depends: debhelper (>= 8)
 
-Package: loop-images
+Package: temp-humidity
 Architecture: all
 Depends: ruby, ${misc:Depends}
-Description: GUI application to loop through a set of still images
-  It will loop through lots of images.
+Description: GUI application to capture and display temperature values
+  It will capture and display temperature and humidity values.
