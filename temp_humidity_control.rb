@@ -10,7 +10,7 @@ require 'daemons'
 #     temp_humidity_control.rb stop
 
 # Need the full path to the script to run in the background
-path_to_script = File.join(File.dirname(__FILE__), "temp_humidity.rb")
+path_to_script = File.join(File.dirname(__FILE__), "temp_humidity_mongo.rb")
 
 # Run the script. The PID file will be in the same directory as the script.
 Daemons.run path_to_script
