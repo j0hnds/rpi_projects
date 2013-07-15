@@ -6,8 +6,6 @@ require 'tkextlib/tkimg'
 class TempChartApp < TkRoot
   include Tk
 
-  DATA_PATH = File.join(ENV['HOME'], 'Projects/temp_humidity')
-
   attr_reader :label
 
   def initialize(options)
@@ -57,7 +55,8 @@ class TempChartApp < TkRoot
 
   def create_chart
     puts "Creating chart..."
-    system "cd #{DATA_PATH}; ./chart_temp_humidity.sh"
+    base_dir = File.dirname(__FILE__)
+    system "#{base_dir}/chart_temp_humidity.sh"
     puts "Chart created, loading..."
     new_image = load_image
     label['image'].copy new_image
@@ -65,7 +64,7 @@ class TempChartApp < TkRoot
   end
 
   def load_image
-    TkPhotoImage.new('file' => File.join(DATA_PATH, 'temp_humidity_20130330.gif'))
+    TkPhotoImage.new('file' => File.join('/tmp', 'temp_humidity.gif'))
   end
 
 end
