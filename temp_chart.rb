@@ -55,7 +55,7 @@ class TempChartApp < TkRoot
 
   def create_chart
     puts "Creating chart..."
-    base_dir = File.dirname(__FILE__)
+    base_dir = File.symlink?(__FILE__) ? File.dirname(File.readlink(__FILE__)) : File.dirname(__FILE__)
     system "#{base_dir}/chart_temp_humidity.sh"
     puts "Chart created, loading..."
     new_image = load_image
