@@ -15,7 +15,7 @@ class TempChartApp < TkRoot
 
     tkImage = load_image
     @label = TkLabel.new(self) do
-      image tkImage
+      image tkImage if tkImage
       pack do
         side 'left'
       end
@@ -64,7 +64,8 @@ class TempChartApp < TkRoot
   end
 
   def load_image
-    TkPhotoImage.new('file' => File.join('/tmp', 'temp_humidity.gif'))
+    path = File.join('/tmp', 'temp_humidity.gif')
+    TkPhotoImage.new('file' => path) if File.exists?(path)
   end
 
 end
